@@ -1,6 +1,6 @@
 # Radium Math — Milestone Plan
 
-Status: M0 complete; M1 is the current milestone · Last updated 2026-11-09
+Status: M1 in progress (M1-T1 done; next M1-T15, then M1-T2) · Last updated 2026-11-09
 
 This file defines the milestones and tasks for Radium Math v1. It sits alongside
 `docs/requirements.md` (what to build) and `docs/architecture.md` (how it is built).
@@ -124,7 +124,7 @@ refer to `architecture.md` Section 11.
 
 ## Change log
 
-- 2026-11-09: M1-T1 done. Space after a number opens the unit slot (ADR 0016); MathLive 0.111.4 works under `freezePrototype` with no CSP violations under the dev CSP. The spike found MathLive cannot output MathJSON without CortexJS, so math is now stored as LaTeX and parsed to MathJSON in the worker (ADR 0017, superseding part of 0004 and 0005); M1-T14 now also covers that parse. Slot details for the M2 node view are listed in ADR 0016.
+- 2026-11-09: M1-T1 done. Space after a number opens the unit slot (ADR 0016); MathLive 0.111.4 works under `freezePrototype` with no CSP violations under the dev CSP. The spike found MathLive cannot output MathJSON without CortexJS, so math is now stored as LaTeX and parsed to MathJSON in the worker (ADR 0017, superseding part of 0004 and 0005); M1-T14 now also covers that parse. Slot details for the M2 node view are listed in ADR 0016. Next: M1-T15 (coverage gate, needs approval for `@vitest/coverage-v8`), then M1-T2 (core types; `RegionInput` carries LaTeX per ADR 0017).
 
 - 2026-11-09: M0 complete. Exit criteria met (`pnpm tauri dev` opens the window; CI passes on the review commits) and the fresh-session review has no open gaps (rule 6). M1 is next; start with M1-T1, and run M1-T14 and M1-T15 before M1-T9 and before the first core code respectively.
 
