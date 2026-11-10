@@ -322,7 +322,7 @@ All dependencies must be MIT-compatible; a license check in CI rejects GPL, LGPL
 | Build and dev server | Vite | MIT |
 | Unit and integration tests | Vitest | MIT |
 | Property-based tests | fast-check | MIT |
-| Coverage | `@vitest/coverage-v8` *(planned, M1-T15)* | MIT |
+| Coverage | `@vitest/coverage-v8` | MIT |
 | Editor test DOM | jsdom *(planned, M2-T12)* | MIT |
 | UI tests | Playwright *(planned, M2-T12)* | Apache-2.0 |
 | Lint and format | ESLint with typescript-eslint, Prettier | MIT |
@@ -340,7 +340,7 @@ All dependencies must be MIT-compatible; a license check in CI rejects GPL, LGPL
 3. **UI** (Playwright against the Vite dev server): typing, recalculation, error display.
 4. **Release checklist** (manual): PLT and EXP demonstrations on each OS.
 
-**CI** (GitHub Actions): typecheck, frontend build (`vite build`), lint, format, layer rules, npm and crate license checks, SEC-01 code search, tests, `pnpm audit`, `cargo fmt`, clippy, `cargo audit` on every push. Installs honor `minimumReleaseAge: 1440` in `pnpm-workspace.yaml`; reviewed advisory exceptions live in `src-tauri/.cargo/audit.toml`. Release builds run on Windows, macOS and Ubuntu 22.04 runners; the AppImage is built on the oldest supported base so it runs on newer distributions.
+**CI** (GitHub Actions): typecheck, frontend build (`vite build`), lint, format, layer rules, npm and crate license checks, SEC-01 code search, tests with core line coverage ≥ 90% (MNT-04), `pnpm audit`, `cargo fmt`, clippy, `cargo audit` on every push. Installs honor `minimumReleaseAge: 1440` in `pnpm-workspace.yaml`; reviewed advisory exceptions live in `src-tauri/.cargo/audit.toml`. Release builds run on Windows, macOS and Ubuntu 22.04 runners; the AppImage is built on the oldest supported base so it runs on newer distributions.
 
 **Release artifacts (PLT-03).**
 

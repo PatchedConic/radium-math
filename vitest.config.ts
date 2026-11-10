@@ -4,6 +4,16 @@ import { defineConfig } from "vitest/config";
 // when the editor arrives; UI e2e tests use Playwright (tests/e2e).
 export default defineConfig({
   test: {
+    // MNT-04: core line coverage must stay at or above 90%. `include` makes
+    // core files that no test loads count as 0% rather than being skipped.
+    // Run with `pnpm test:coverage`; the HTML report lands in coverage/.
+    coverage: {
+      provider: "v8",
+      include: ["src/core/**/*.ts"],
+      exclude: ["src/core/**/*.test.ts"],
+      reporter: ["text", "html"],
+      thresholds: { lines: 90 },
+    },
     projects: [
       {
         test: {

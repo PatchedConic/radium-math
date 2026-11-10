@@ -20,19 +20,20 @@ Goal G4 governs everything: one hobbyist developer must be able to understand, t
 
 ## Commands
 
-| Command                                       | What it does                                                                       |
-| --------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `pnpm install`                                | Install dependencies from `pnpm-lock.yaml`                                         |
-| `pnpm tauri dev`                              | Run the desktop app with hot reload                                                |
-| `pnpm dev`                                    | Run only the Vite dev server (browser at http://localhost:1420, no Tauri APIs)     |
-| `pnpm check`                                  | **Every gate:** typecheck, lint, format, layer rules, licenses, SEC-01 scan, tests |
-| `pnpm test` / `pnpm test:watch`               | Vitest, once or on save                                                            |
-| `pnpm exec vitest run src/core/units`         | Tests for one folder                                                               |
-| `pnpm typecheck`                              | `tsc` for the app, for core with no DOM or Node types, and for config files        |
-| `pnpm lint` / `pnpm format`                   | ESLint / Prettier (format rewrites files)                                          |
-| `pnpm deps:check`                             | dependency-cruiser layer rules                                                     |
-| `pnpm licenses:check` / `pnpm security:check` | npm license allow-list / SEC-01 code search                                        |
-| `pnpm build` / `pnpm tauri build`             | Frontend bundle / desktop bundle                                                   |
+| Command                                       | What it does                                                                                          |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `pnpm install`                                | Install dependencies from `pnpm-lock.yaml`                                                            |
+| `pnpm tauri dev`                              | Run the desktop app with hot reload                                                                   |
+| `pnpm dev`                                    | Run only the Vite dev server (browser at http://localhost:1420, no Tauri APIs)                        |
+| `pnpm check`                                  | **Every gate:** typecheck, lint, format, layer rules, licenses, SEC-01 scan, tests with core coverage |
+| `pnpm test` / `pnpm test:watch`               | Vitest, once or on save                                                                               |
+| `pnpm test:coverage`                          | Vitest once, failing if `src/core` line coverage is below 90% (MNT-04); report in `coverage/`         |
+| `pnpm exec vitest run src/core/units`         | Tests for one folder                                                                                  |
+| `pnpm typecheck`                              | `tsc` for the app, for core with no DOM or Node types, and for config files                           |
+| `pnpm lint` / `pnpm format`                   | ESLint / Prettier (format rewrites files)                                                             |
+| `pnpm deps:check`                             | dependency-cruiser layer rules                                                                        |
+| `pnpm licenses:check` / `pnpm security:check` | npm license allow-list / SEC-01 code search                                                           |
+| `pnpm build` / `pnpm tauri build`             | Frontend bundle / desktop bundle                                                                      |
 
 Rust commands run from `src-tauri/`:
 
@@ -101,7 +102,7 @@ A change is done when all of these hold:
 
 1. `pnpm check` passes.
 2. If `src-tauri/` changed, `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings` and `cargo deny check licenses bans sources` pass.
-3. New behaviour has tests, tagged with requirement IDs. Core changes keep core line coverage at ≥ 90% once the coverage gate exists (MNT-04, from M1).
+3. New behaviour has tests, tagged with requirement IDs. Core changes keep core line coverage at ≥ 90% (MNT-04), checked by `pnpm test:coverage`.
 4. No new dependency, Tauri permission, CSP change or layer-rule change went in without the user's approval. Any baseline change has an ADR.
 5. Docs match the code: architecture, the ADRs, and this file's commands and rules.
 6. The task's box in [docs/plan.md](docs/plan.md) is ticked in the same commit.

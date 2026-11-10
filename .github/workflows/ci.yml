@@ -57,8 +57,8 @@ jobs:
       - name: Forbidden-code scan (SEC-01)
         run: pnpm security:check
 
-      - name: Tests
-        run: pnpm test
+      - name: Tests and core coverage (MNT-04)
+        run: pnpm test:coverage
 
       - name: npm audit (SEC-15)
         run: pnpm audit --audit-level=high

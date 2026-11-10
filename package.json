@@ -20,10 +20,11 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "deps:check": "depcruise src --config .dependency-cruiser.cjs",
     "licenses:check": "node scripts/check-licenses.mjs",
     "security:check": "node scripts/check-forbidden.mjs",
-    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm deps:check && pnpm licenses:check && pnpm security:check && pnpm test"
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm deps:check && pnpm licenses:check && pnpm security:check && pnpm test:coverage"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
@@ -39,6 +40,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^6.0.2",
+    "@vitest/coverage-v8": "5.1.0",
     "dependency-cruiser": "^18.7.2",
     "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",

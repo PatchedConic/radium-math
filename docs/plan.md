@@ -1,6 +1,6 @@
 # Radium Math — Milestone Plan
 
-Status: M1 in progress (M1-T1 done; next M1-T15, then M1-T2) · Last updated 2026-11-09
+Status: M1 in progress (M1-T1 and M1-T15 done; next M1-T2) · Last updated 2026-11-09
 
 This file defines the milestones and tasks for Radium Math v1. It sits alongside
 `docs/requirements.md` (what to build) and `docs/architecture.md` (how it is built).
@@ -59,7 +59,7 @@ refer to `architecture.md` Section 11.
 - [ ] M1-T12 Worker host: protocol, revision handling, timeout watchdog, tests proving no Tauri IPC in the worker: no `__TAURI_INTERNALS__`, and a raw `fetch` to the IPC origin is refused (SEC-03 sandboxed worker; SEC-04 time limit; PRF-04 UI never blocked).
 - [ ] M1-T13 Golden test harness and first reference calcs, including 2 m × 3.4 in = 0.17272 m² (MNT-07 golden files; ACC-02 verification suite).
 - [ ] M1-T14 Q8 CortexJS capability spike, before M1-T9: 15–20 representative numeric calcs through the Compute Engine, plus a check under `freezePrototype: true`, plus LaTeX parsing (ADR 0017): MathLive output including `\htmlData{unit}{…}` slots to `["Quantity", value, unitExpr]`, and hostile LaTeX. Revisit D5 if a needed case fails (ADR 0005).
-- [ ] M1-T15 Coverage gate, before the first core code lands: `@vitest/coverage-v8` (needs approval), ≥ 90% line coverage on `src/core` enforced in CI (MNT-04; CLAUDE.md definition of done item 3).
+- [x] M1-T15 Coverage gate, before the first core code lands: `@vitest/coverage-v8` (needs approval), ≥ 90% line coverage on `src/core` enforced in CI (MNT-04; CLAUDE.md definition of done item 3).
 
 ## M2 Editor and files
 
@@ -123,6 +123,8 @@ refer to `architecture.md` Section 11.
 | A6 | PDF engine | M4-T8 |
 
 ## Change log
+
+- 2026-11-09: M1-T15 done. `@vitest/coverage-v8` 5.1.0 (approved) measures `src/core` only; `pnpm test:coverage` fails below 90% line coverage, and `pnpm check` and CI run it. Core is still placeholders, so it passes at 0/0 lines; a deliberately untested function was confirmed to fail the gate. Next: M1-T2 (core types; `RegionInput` carries LaTeX per ADR 0017).
 
 - 2026-11-09: M1-T1 done. Space after a number opens the unit slot (ADR 0016); MathLive 0.111.4 works under `freezePrototype` with no CSP violations under the dev CSP. The spike found MathLive cannot output MathJSON without CortexJS, so math is now stored as LaTeX and parsed to MathJSON in the worker (ADR 0017, superseding part of 0004 and 0005); M1-T14 now also covers that parse. Slot details for the M2 node view are listed in ADR 0016. Next: M1-T15 (coverage gate, needs approval for `@vitest/coverage-v8`), then M1-T2 (core types; `RegionInput` carries LaTeX per ADR 0017).
 
