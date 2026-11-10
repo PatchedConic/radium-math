@@ -18,8 +18,9 @@ playwright-report/
 .DS_Store
 *.swp
 
-# Claude Code local state and worktrees
-.claude/
+# Claude Code local state and worktrees (shared settings.json is tracked)
+.claude/*
+!.claude/settings.json
 
 # Logs and local env
 *.log

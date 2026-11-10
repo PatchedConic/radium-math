@@ -13,6 +13,7 @@ Goal G4 governs everything: one hobbyist developer must be able to understand, t
 
 - Work only on tasks in the current milestone of [docs/plan.md](docs/plan.md). Propose how you will do a task and wait for approval before starting it. Ideas outside the milestone go in its Backlog.
 - Work one task at a time. Show what changed, then **wait for an explicit OK before each commit**.
+- Edit the main checkout directly. Don't use git worktrees, even in background sessions (`.claude/settings.json` turns off the background-session worktree guard). Check `git status` before editing, and stop and ask if there are changes you didn't make.
 - **Ask before adding any dependency** not listed in architecture Section 10, npm or Rust. Every dependency must be MIT-compatible (no GPL, LGPL or AGPL).
 - Choose package versions that are past pnpm's minimum release age (`minimumReleaseAge: 1440`, one day, in `pnpm-workspace.yaml`). Never add `minimumReleaseAge` exemptions or edit `pnpm-workspace.yaml` to get around the policy.
 - Never push, and never change Tauri capabilities or the CSP, without asking.
