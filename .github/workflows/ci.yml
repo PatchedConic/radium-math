@@ -1,0 +1,103 @@
+# CI gates from architecture Section 10: typecheck, lint, layer rules, license
+# checks, tests and dependency audits on every push and pull request.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  js:
+    name: TypeScript checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Uses the pnpm version pinned in package.json "packageManager".
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint (MNT-05, SEC-01)
+        run: pnpm lint
+
+      - name: Format
+        run: pnpm format:check
+
+      - name: Layer rules (MNT-02)
+        run: pnpm deps:check
+
+      - name: npm licenses (Q7)
+        run: pnpm licenses:check
+
+      - name: Forbidden-code scan (SEC-01)
+        run: pnpm security:check
+
+      - name: Tests
+        run: pnpm test
+
+      - name: npm audit (SEC-15)
+        run: pnpm audit --audit-level=high
+
+  rust:
+    name: Rust checks
+    # Oldest supported build base, matching the AppImage release build (Section 10).
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: src-tauri
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Tauri system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential libwebkit2gtk-4.1-dev libssl-dev \
+            libayatana-appindicator3-dev librsvg2-dev libxdo-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit,cargo-deny
+
+      - name: Format
+        run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy --all-targets --locked -- -D warnings
+
+      - name: Crate licenses and sources (Q7)
+        run: cargo deny --locked check licenses bans sources
+
+      - name: cargo audit (SEC-15)
+        run: cargo audit

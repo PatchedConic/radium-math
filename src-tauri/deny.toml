@@ -1,0 +1,55 @@
+# cargo-deny: license and source checks for Rust crates (Q7, SEC-15).
+# Security advisories are checked by cargo-audit (architecture Section 10).
+# Docs: https://embarkstudios.github.io/cargo-deny/
+
+[graph]
+# Check the crates actually built for the three desktop release targets.
+targets = [
+  "x86_64-unknown-linux-gnu",
+  "x86_64-pc-windows-msvc",
+  "aarch64-apple-darwin",
+]
+all-features = false
+
+[licenses]
+# Permissive licenses compatible with shipping under MIT. No GPL, LGPL or AGPL.
+allow = [
+  "MIT",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "Zlib",
+  "Unicode-3.0",
+]
+confidence-threshold = 0.9
+# The allow-list is a policy, not an inventory: unused entries are fine.
+unused-allowed-license = "allow"
+# Reviewed exceptions: one entry per crate, with the reason. MPL-2.0 is
+# file-level copyleft: compatible with an MIT app while these crates' own
+# files stay MPL. Any new MPL crate fails CI until reviewed here.
+exceptions = [
+  # Build-time only: tauri-utils "html-manipulation" (via dom_query), used
+  # by Tauri's macros to inject the CSP; not linked into the app.
+  { crate = "cssparser", allow = ["MPL-2.0"] },
+  { crate = "cssparser-macros", allow = ["MPL-2.0"] },
+  { crate = "selectors", allow = ["MPL-2.0"] },
+  { crate = "dtoa-short", allow = ["MPL-2.0"] },
+  # Ships in the binary: tiny helper used by dirs-sys (tauri, wry).
+  { crate = "option-ext", allow = ["MPL-2.0"] },
+]
+
+[licenses.private]
+ignore = true
+
+[bans]
+multiple-versions = "allow"
+wildcards = "deny"
+allow-wildcard-paths = true
+
+[sources]
+# Crates may come from crates.io only: no git or alternate registries.
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
