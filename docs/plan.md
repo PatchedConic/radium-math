@@ -1,6 +1,6 @@
 # Radium Math — Milestone Plan
 
-Status: M0 in progress · Last updated 2026-11-09
+Status: M0 tasks done; awaiting fresh-session review · Last updated 2026-11-09
 
 This file defines the milestones and tasks for Radium Math v1. It sits alongside
 `docs/requirements.md` (what to build) and `docs/architecture.md` (how it is built).
@@ -34,14 +34,14 @@ refer to `architecture.md` Section 11.
 
 ## M0 Foundation
 
-- [ ] M0-T1 Check prerequisites: Node 22 LTS, pnpm, Rust via rustup, Tauri 2 system packages. List sudo commands for the user; do not run them.
-- [ ] M0-T2 Scaffold Tauri 2 + React + strict TypeScript + Vite with the folder layout in architecture Section 3.
-- [ ] M0-T3 Tooling: ESLint + typescript-eslint, Prettier, Vitest, fast-check, dependency-cruiser layer rules (architecture Section 2), license check (MIT-compatible only).
-- [ ] M0-T4 GitHub Actions CI: typecheck, lint, layer rules, license check, tests, `pnpm audit`, `cargo audit` (MNT-05 lint enforced in CI; SEC-15 audits in CI).
-- [ ] M0-T5 Write `CLAUDE.md`: conventions, layer rules, security rules (no `eval`, `Function`, or CortexJS `compile()`), commands, definition of done, pointer to this file.
-- [ ] M0-T6 Write `docs/adr/0001` to `0014` from architecture Section 11 (MNT-06 decision records in repo).
-- [ ] M0-T7 Replace the diagram placeholder in `architecture.md` with a Mermaid diagram.
-- [ ] M0-T8 Add the MIT `LICENSE`.
+- [x] M0-T1 Check prerequisites: Node 22 LTS, pnpm, Rust via rustup, Tauri 2 system packages. List sudo commands for the user; do not run them.
+- [x] M0-T2 Scaffold Tauri 2 + React + strict TypeScript + Vite with the folder layout in architecture Section 3.
+- [x] M0-T3 Tooling: ESLint + typescript-eslint, Prettier, Vitest, fast-check, dependency-cruiser layer rules (architecture Section 2), license check (MIT-compatible only).
+- [x] M0-T4 GitHub Actions CI: typecheck, lint, layer rules, license check, tests, `pnpm audit`, `cargo audit` (MNT-05 lint enforced in CI; SEC-15 audits in CI).
+- [x] M0-T5 Write `CLAUDE.md`: conventions, layer rules, security rules (no `eval`, `Function`, or CortexJS `compile()`), commands, definition of done, pointer to this file.
+- [x] M0-T6 Write `docs/adr/0001` to `0014` from architecture Section 11 (MNT-06 decision records in repo).
+- [x] M0-T7 Replace the diagram placeholder in `architecture.md` with a Mermaid diagram.
+- [x] M0-T8 Add the MIT `LICENSE`.
 
 ## M1 Math engine (no UI)
 
@@ -121,6 +121,7 @@ refer to `architecture.md` Section 11.
 
 ## Change log
 
+- 2026-11-09: M0 tasks done and exit criteria met: `pnpm tauri dev` opens the placeholder window and the first CI run passed. Fresh-session review pending (rule 6).
 - 2026-11-09: Plan created. File save, open and autosave moved from M5 to M2 so the app is usable from M2 on.
 
 ## Backlog
