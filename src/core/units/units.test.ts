@@ -1,14 +1,32 @@
 import fc from "fast-check";
-import { describe, expect, it } from "vitest";
-import * as mod from ".";
+import { describe, expectTypeOf, it } from "vitest";
+import type { Dimension, Quantity, Rational } from ".";
 
-// Placeholder (M0). The units layer gets real property-based tests in M1
-// (MNT-04), e.g. convert A→B→A returns A.
 describe("core/units", () => {
-  it("[placeholder] module loads", () => {
-    expect(mod).toBeTypeOf("object");
+  it("[UNT-02] a dimension has exactly the 7 SI base exponents", () => {
+    expectTypeOf<Dimension["length"]>().toEqualTypeOf<7>();
+    expectTypeOf<Dimension[number]>().toEqualTypeOf<Rational>();
   });
 
+  it("[UNT-08] rationals and quantities are exact and read-only", () => {
+    expectTypeOf<Rational["num"]>().toEqualTypeOf<bigint>();
+    const q: Quantity = {
+      si: 0.17272,
+      dim: [
+        { num: 2n, den: 1n },
+        { num: 0n, den: 1n },
+        { num: 0n, den: 1n },
+        { num: 0n, den: 1n },
+        { num: 0n, den: 1n },
+        { num: 0n, den: 1n },
+        { num: 0n, den: 1n },
+      ],
+    };
+    // @ts-expect-error quantities are immutable plain data
+    q.si = 1;
+  });
+
+  // Placeholder until M1-T3 adds the real property tests (MNT-04).
   it("[placeholder] fast-check is wired up", () => {
     fc.assert(fc.property(fc.integer(), fc.integer(), (a, b) => a + b === b + a));
   });

@@ -107,7 +107,7 @@ radium-math/
 
 ## 4. Core interfaces
 
-These types are the contract between layers; everything else is an implementation detail behind them. They are first drafts to be refined in M1.
+These types are the contract between layers; everything else is an implementation detail behind them. They live in `src/core/model` (regions, results, settings), `src/core/units` (`Rational`, `Dimension`, `Quantity`) and `src/core/validate` (`ValidExpr`). In code every field is `readonly`; the sketches below omit that.
 
 **Region inputs** (editor → engine). The editor splits `name := expr` into its parts, so the engine never parses left-hand sides.
 
@@ -129,6 +129,14 @@ interface DisplaySpec {
   format?: NumberFormat;    // MTH-11 override
   showWork?: boolean;       // MTH-10
 }
+
+interface NumberFormat {    // MTH-11
+  notation: "fixed" | "scientific" | "engineering";
+  precision: "significant" | "decimals";   // what `digits` counts
+  digits: number;
+}
+
+interface DocSettings { unitSystem: "SI" | "US"; format: NumberFormat }   // UNT-04, MTH-11
 ```
 
 **Quantities** (inside the engine). Values are stored in coherent SI; dimensions are exponent vectors over the 7 SI base dimensions, with rational exponents so sqrt(m²) works.
@@ -158,6 +166,9 @@ type RegionResult =
   | { id: BlockId; status: "ok"; value: FormattedValue; work?: WorkStep[]; pass?: boolean }
   | { id: BlockId; status: "error"; error: { code: ErrorCode; message: string } }
   | { id: BlockId; status: "blocked"; blockedBy: BlockId };          // MTH-12
+
+interface FormattedValue { latex: Latex }   // draft; refined in M1-T11
+interface WorkStep { latex: Latex }         // draft until Q6 (M3-T3)
 
 type ErrorCode = "undefined-symbol" | "defined-below" | "dimension-mismatch" | "bad-display-unit"
                | "disallowed" | "too-large" | "unsupported" | "timeout" | "internal";

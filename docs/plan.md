@@ -1,6 +1,6 @@
 # Radium Math — Milestone Plan
 
-Status: M1 in progress (M1-T1 and M1-T15 done; next M1-T2) · Last updated 2026-11-09
+Status: M1 in progress (M1-T1, M1-T2 and M1-T15 done; next M1-T3) · Last updated 2026-11-09
 
 This file defines the milestones and tasks for Radium Math v1. It sits alongside
 `docs/requirements.md` (what to build) and `docs/architecture.md` (how it is built).
@@ -46,7 +46,7 @@ refer to `architecture.md` Section 11.
 ## M1 Math engine (no UI)
 
 - [x] M1-T1 MathLive spike: confirm the space-after-number unit slot (A3), or fall back to a dedicated key; also check MathLive under `freezePrototype: true`. Record the result as ADR 0016 (UNT-01 inline unit entry).
-- [ ] M1-T2 Core types: `RegionInput`, `RegionResult`, `Quantity`, `Dimension`, `Rational`, `ValidExpr` (architecture Section 4).
+- [x] M1-T2 Core types: `RegionInput`, `RegionResult`, `Quantity`, `Dimension`, `Rational`, `ValidExpr` (architecture Section 4).
 - [ ] M1-T3 Rational and dimension arithmetic, with property-based tests (MNT-04 property tests for units).
 - [ ] M1-T4 Unit registry, core set: SI base and derived units with prefixes, main US customary units, exact factors (UNT-05 unit library; UNT-08 exact rational factors).
 - [ ] M1-T5 Dimension inference rules, including angles (UNT-02 dimension checking; UNT-07 radians dimensionless, degrees a unit).
@@ -123,6 +123,8 @@ refer to `architecture.md` Section 11.
 | A6 | PDF engine | M4-T8 |
 
 ## Change log
+
+- 2026-11-09: M1-T2 done. Section 4 types are in `core/model` (regions, results, `DocSettings`), `core/units` (`Rational`, `Dimension`, `Quantity`) and `core/validate` (`ValidExpr`, unchanged), all `readonly`. `RegionInput` carries `Latex` (ADR 0017). Drafts added for types Section 4 named but did not define: `NumberFormat` (notation, significant or decimals, digits; MTH-11), `DocSettings`, `FormattedValue` and `WorkStep`, the last two to be refined in M1-T11 and M3-T3. Worker protocol types wait for M1-T12, and `ComputeBackend.parse` for M1-T9. Type-level tests replace the placeholders in model and units. Next: M1-T3 (rational and dimension arithmetic).
 
 - 2026-11-09: M1-T15 done. `@vitest/coverage-v8` 5.1.0 (approved) measures `src/core` only; `pnpm test:coverage` fails below 90% line coverage, and `pnpm check` and CI run it. Core is still placeholders, so it passes at 0/0 lines; a deliberately untested function was confirmed to fail the gate. Next: M1-T2 (core types; `RegionInput` carries LaTeX per ADR 0017).
 
