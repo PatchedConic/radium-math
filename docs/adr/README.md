@@ -20,3 +20,4 @@ To add one, copy [template.md](template.md) to the next number.
 | [0012](0012-unit-slot.md)                   | Explicit unit slot; units and variables never share names                   | A3         | Accepted |
 | [0013](0013-symbolic-substitution.md)       | Symbolic regions substitute values defined above                            | A2         | Accepted |
 | [0014](0014-symbolic-units.md)              | Units carried through symbolic math as SI base-unit symbols                 | A1         | Accepted |
+| [0015](0015-tauri-capabilities.md)          | Explicit list of Tauri core permissions, not `core:default`                 | SEC-09     | Accepted |

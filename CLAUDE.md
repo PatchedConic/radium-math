@@ -74,7 +74,7 @@ Documents are data, never code.
 - **The worker gets no DOM, file, network or Tauri IPC access (SEC-03).** Every evaluation has a timeout, enforced by terminate and restart (SEC-04).
 - **Untrusted bytes enter at three points only:** file open, paste and image import. Each goes through its single validator (Section 8), and nothing downstream trusts raw input.
 - **No network:** opening or rendering a document makes no request (SEC-07). The CSP lives in `src-tauri/tauri.conf.json` (SEC-08).
-- **Tauri capabilities stay at `core:default` plus the dialog and file commands of Section 8 (SEC-09):** no shell, http, process or updater plugins. A new permission needs an ADR.
+- **Tauri capabilities stay at the explicit core sets of [ADR 0015](docs/adr/0015-tauri-capabilities.md) plus the dialog and file commands of Section 8 (SEC-09):** never `core:default`, `core:image:allow-from-path` or `core:tray`, and no shell, http, process or updater plugins. A new permission needs an ADR.
 - **`any` is banned (MNT-01).** The rare justified exception uses `// eslint-disable-next-line @typescript-eslint/no-explicit-any -- <reason>`. Every disable comment needs a `-- reason`.
 
 ## Conventions
