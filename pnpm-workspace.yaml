@@ -1,0 +1,6 @@
+# pnpm settings for this single-package repo (no workspace packages).
+#
+# Supply-chain policy: never install a package version published less than
+# one day ago, so a compromised release has time to be caught and pulled.
+# Never add exemptions or lower this to make an install pass (CLAUDE.md).
+minimumReleaseAge: 1440
