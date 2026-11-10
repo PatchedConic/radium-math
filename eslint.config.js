@@ -57,7 +57,7 @@ const securityRules = {
 
 export default tseslint.config(
   {
-    ignores: ["dist/", "coverage/", "src-tauri/", "node_modules/"],
+    ignores: ["dist/", "coverage/", "src-tauri/", "node_modules/", ".claude/"],
   },
 
   js.configs.recommended,

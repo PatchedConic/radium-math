@@ -4,6 +4,7 @@ node_modules/
 pnpm-lock.yaml
 src-tauri/target/
 src-tauri/gen/
+.claude/
 
 # The baseline design docs and the milestone plan are maintained outside the repo;
 # keep their formatting as-is.

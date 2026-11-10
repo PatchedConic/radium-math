@@ -18,6 +18,9 @@ playwright-report/
 .DS_Store
 *.swp
 
+# Claude Code local state and worktrees
+.claude/
+
 # Logs and local env
 *.log
 .env
