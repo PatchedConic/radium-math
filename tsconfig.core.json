@@ -1,0 +1,10 @@
+{
+  // Core only, with no DOM or Node types: a DOM or Node API used in
+  // src/core fails to typecheck (MNT-02, PLT-02).
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src/core"]
+}

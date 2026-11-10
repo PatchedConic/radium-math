@@ -1,0 +1,9 @@
+{
+  // Build and tool config files that run in Node.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["vite.config.ts"]
+}
