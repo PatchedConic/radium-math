@@ -1,0 +1,10 @@
+dist/
+coverage/
+node_modules/
+pnpm-lock.yaml
+src-tauri/target/
+src-tauri/gen/
+
+# The baseline design docs are maintained outside the repo; keep their formatting as-is.
+docs/requirements.md
+docs/architecture.md

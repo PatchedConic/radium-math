@@ -1,9 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-// @ts-expect-error -- node:process has no types until @types/node is added (T3).
 import process from "node:process";
 
-const host: string | undefined = process.env.TAURI_DEV_HOST;
+const host = process.env["TAURI_DEV_HOST"];
 
 // https://vite.dev/config/ and https://tauri.app/start/frontend/vite/
 export default defineConfig({
