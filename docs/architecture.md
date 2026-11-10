@@ -6,7 +6,44 @@ Radium Math is a React + ProseMirror editor in a Tauri shell, with all calculati
 
 ## 1. At a glance
 
-&#91;embedded content: Radium Math components · main thread, sandboxed worker, Rust shell\]
+```mermaid
+flowchart LR
+  subgraph main["Main thread · webview"]
+    direction TB
+    UI["<b>UI</b> · src/ui<br/>React chrome: menus, toolbar, panels"]
+    ED["<b>Editor</b> · src/editor<br/>ProseMirror + MathLive node views"]
+    PL["<b>Platform</b> · src/platform<br/>Platform interface"]
+    UI --> ED
+    UI --> PL
+  end
+
+  subgraph wk["Sandboxed Web Worker · no DOM, files, network or IPC"]
+    WK["<b>Worker</b> · src/worker<br/>protocol, hosts the engine"]
+  end
+
+  subgraph core["Core · src/core · pure TypeScript, shared"]
+    direction LR
+    EN["engine"] --> VA["validate"] --> SC["scope"] --> UN["units"] --> CB["ComputeBackend"] --> NF["numfmt"]
+    CB --- CX["cortex adapter<br/>CortexJS"]
+    MO["model"]
+    FO["format<br/>schema, migrations, zip"]
+  end
+
+  subgraph rust["Rust shell · src-tauri"]
+    CMD["open_dialog · save_dialog<br/>read_document · write_document<br/>write_recovery"]
+    FS[("User-chosen files<br/>recovery folder")]
+    CMD --> FS
+  end
+
+  ED -- "RegionInput[] + rev" --> WK
+  WK -- "RegionResult[]" --> ED
+  PL -- "Tauri IPC" --> CMD
+
+  WK -.->|imports| EN
+  ED -.->|"imports types, numfmt, format"| core
+```
+
+Solid arrows are runtime calls and messages; dotted arrows are imports. Core runs wherever it is imported: the engine pipeline runs inside the worker, while the editor uses core's types, number formatting and file format on the main thread.
 
 The editor sends region inputs to the worker and draws the results it gets back; only the Platform layer talks to Rust, and only Rust touches files.
 
