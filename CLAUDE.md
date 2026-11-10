@@ -46,7 +46,11 @@ CI (`.github/workflows/ci.yml`) runs all of the above on every push.
 
 CI also runs `vite build` (the bundle Tauri ships). `pnpm audit` fails only on high or critical advisories. Moderate dev-only advisories (e.g. minimatch via ESLint) are tolerated until upstream fixes them. Reviewed Rust advisory exceptions live in `src-tauri/.cargo/audit.toml`, one per advisory with its reason, and any new unsound advisory fails CI.
 
-Local setup: Node 22 (`.nvmrc`), pnpm pinned by `packageManager` in `package.json`, and Rust stable via rustup. `~/.cargo/env` must be sourced for `cargo` to be on PATH.
+Local setup: Node 22 (`.nvmrc`), pnpm pinned by `packageManager` in `package.json`, and Rust stable via rustup. `~/.cargo/env` must be sourced for `cargo` to be on PATH. Tauri 2 also needs these system packages (the user runs these; never run sudo):
+
+- Fedora: `sudo dnf install webkit2gtk4.1-devel openssl-devel curl wget file libappindicator-gtk3-devel librsvg2-devel libxdo-devel` and `sudo dnf group install c-development`
+- Ubuntu/Debian: `sudo apt install build-essential curl wget file libwebkit2gtk-4.1-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev` (the same set CI installs)
+- Check with `pnpm tauri info`.
 
 ## Layers (Section 2, MNT-02)
 
