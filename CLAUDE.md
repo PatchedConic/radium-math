@@ -44,6 +44,8 @@ Rust commands run from `src-tauri/`:
 
 CI (`.github/workflows/ci.yml`) runs all of the above on every push.
 
+CI also runs `vite build` (the bundle Tauri ships).
+
 Local setup: Node 22 (`.nvmrc`), pnpm pinned by `packageManager` in `package.json`, and Rust stable via rustup. `~/.cargo/env` must be sourced for `cargo` to be on PATH.
 
 ## Layers (Section 2, MNT-02)

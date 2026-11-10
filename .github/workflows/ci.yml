@@ -37,6 +37,11 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      # The production bundle Tauri ships (frontendDist). Catches Vite or
+      # bundling breaks that typecheck and tests miss.
+      - name: Frontend build
+        run: pnpm exec vite build
+
       - name: Lint (MNT-05, SEC-01)
         run: pnpm lint
 
