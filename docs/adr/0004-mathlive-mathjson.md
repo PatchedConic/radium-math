@@ -1,6 +1,6 @@
 # 0004. Use MathLive for math input and MathJSON as the interchange format
 
-- **Status:** Accepted
+- **Status:** Accepted; storing and exchanging math as MathJSON superseded by [0017](0017-latex-storage.md)
 - **Date:** 2026-11-09
 - **Source:** D4; MTH-01, SEC-02, EDT-03, PRF-03
 

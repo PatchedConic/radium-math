@@ -6,9 +6,9 @@ src-tauri/target/
 src-tauri/gen/
 .claude/
 
-# requirements.md and architecture.md are maintained outside the repo; keep
-# their formatting as-is. plan.md is maintained here (the in-repo copy is the
-# only one) but is excluded so Prettier doesn't rewrap its long task lines.
+# requirements.md, architecture.md and plan.md are maintained here (the in-repo
+# copies are the only ones). They are excluded so Prettier keeps their tables
+# and long lines as written.
 docs/requirements.md
 docs/architecture.md
 docs/plan.md

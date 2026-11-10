@@ -1,6 +1,6 @@
 # 0005. Use CortexJS behind a `ComputeBackend` interface, and never call `compile()`
 
-- **Status:** Accepted
+- **Status:** Accepted; "never parses LaTeX strings" superseded by [0017](0017-latex-storage.md)
 - **Date:** 2026-11-09
 - **Source:** D5, Q8; MNT-03, MTH-09, SEC-01, SEC-02
 

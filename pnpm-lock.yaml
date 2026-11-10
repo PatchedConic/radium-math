@@ -169,6 +169,9 @@ importers:
       '@tauri-apps/api':
         specifier: ^2
         version: 2.12.4
+      mathlive:
+        specifier: 0.111.4
+        version: 0.111.4
       react:
         specifier: ^19.1.0
         version: 19.3.1
@@ -1123,6 +1126,9 @@ packages:
 
   magic-string@1.4.5:
     resolution: {integrity: sha512-oLLC2+YvQUfAa+vxoufE/yc1icb87M9iXIRqAoR/2EhE/8cb3SF/+Gi0c2By1B+5Vz2e2vQtUvHiu1+63Znh+w==}
+
+  mathlive@0.111.4:
+    resolution: {integrity: sha512-1E5EOQnUHWn+KfEXaDTmuyxRWZrZw4WlQFyZLzJmjKEPdaX4WAnFqVfZb36mhulykcIl7/W7gKkTmutP2/9wjQ==}
 
   minimatch@10.2.6:
     resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
@@ -2275,6 +2281,8 @@ snapshots:
   magic-string@1.4.5:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
+
+  mathlive@0.111.4: {}
 
   minimatch@10.2.6:
     dependencies:

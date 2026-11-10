@@ -26,7 +26,7 @@ These decisions are fixed for v1; changing one requires a logged decision record
 | D1 | App shell | Tauri 2 with system webview; move to Tauri 3 CEF (Chromium) runtime once stable | Small install, iOS/Android path, Rust layer stays thin | Linux WebKitGTK defects block v1 before Tauri 3 is stable |
 | D2 | UI language | TypeScript, strict mode | One language for UI and core logic; runs on every target | — |
 | D3 | Document editor | ProseMirror | Structured documents with custom embedded blocks; Yjs collaboration path | — |
-| D4 | Math input | MathLive | Mature natural-notation editing; outputs MathJSON | — |
+| D4 | Math input | MathLive | Mature natural-notation editing; stores LaTeX, parsed to MathJSON in the worker (ADR 0017) | — |
 | D5 | CAS | CortexJS Compute Engine, behind a `ComputeBackend` interface | Native TypeScript, shares MathJSON with MathLive, instant start | Capability spike (Q8) fails required symbolic cases |
 | D6 | Units | Own TypeScript units layer over the MathJSON tree | Core engineering function; keeps CAS swappable | — |
 | D7 | Evaluation order | Strictly top to bottom | Reads like a report; simple to reason about | — |
@@ -41,7 +41,7 @@ A document is an ordered list of blocks plus metadata and a theme; user input is
 | --- | --- |
 | Document | Metadata (title, number, revision, author, checker), theme, page setup, and an ordered list of blocks |
 | Block | One unit of content with a stable unique ID. v1 types: heading, paragraph, list, math region, image, page break |
-| Math region | A block holding one MathJSON expression of a given kind: definition, evaluation, symbolic, or check |
+| Math region | A block holding one math expression (stored as LaTeX) of a given kind: definition, evaluation, symbolic, or check |
 | Definition | `name := expr` — binds `name` for every block below it |
 | Evaluation | `expr =` — displays the computed result |
 | Symbolic | `expr →` — displays a symbolic result (simplify, solve, differentiate, etc.) |
@@ -51,7 +51,7 @@ A document is an ordered list of blocks plus metadata and a theme; user input is
 
 **Evaluation pipeline** (one direction, each stage testable alone):
 
-1. MathLive editor produces MathJSON.
+1. MathLive editor produces LaTeX; the worker parses it to MathJSON (ADR 0017).
 2. Validator checks the tree against the allowed operator list (SEC-02).
 3. Scope resolver walks blocks top to bottom and builds the symbol table.
 4. Units layer checks dimensions and normalizes quantities.
@@ -153,7 +153,7 @@ The app shall meet the following requirements, grouped by area.
 | --- | --- | --- |
 | FIL-01 | A document is one file containing JSON content and embedded assets (container format: Q4). | Must |
 | FIL-02 | The schema carries a version. The app opens every older version through migrations, and refuses newer versions with a clear message. | Must |
-| FIL-03 | Only user input (text, MathJSON, styles, assets) is authoritative; cached results are recomputed on open. | Must |
+| FIL-03 | Only user input (text, math LaTeX, styles, assets) is authoritative; cached results are recomputed on open. | Must |
 | FIL-04 | Every block persists its stable unique ID. | Must |
 | FIL-05 | Serialization is deterministic (stable key order and formatting) so diffs are minimal. | Should |
 

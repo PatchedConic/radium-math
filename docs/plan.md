@@ -45,7 +45,7 @@ refer to `architecture.md` Section 11.
 
 ## M1 Math engine (no UI)
 
-- [ ] M1-T1 MathLive spike: confirm the space-after-number unit slot (A3), or fall back to a dedicated key; also check MathLive under `freezePrototype: true`. Record the result as ADR 0016 (UNT-01 inline unit entry).
+- [x] M1-T1 MathLive spike: confirm the space-after-number unit slot (A3), or fall back to a dedicated key; also check MathLive under `freezePrototype: true`. Record the result as ADR 0016 (UNT-01 inline unit entry).
 - [ ] M1-T2 Core types: `RegionInput`, `RegionResult`, `Quantity`, `Dimension`, `Rational`, `ValidExpr` (architecture Section 4).
 - [ ] M1-T3 Rational and dimension arithmetic, with property-based tests (MNT-04 property tests for units).
 - [ ] M1-T4 Unit registry, core set: SI base and derived units with prefixes, main US customary units, exact factors (UNT-05 unit library; UNT-08 exact rational factors).
@@ -58,7 +58,7 @@ refer to `architecture.md` Section 11.
 - [ ] M1-T11 Display conversion, default unit system, number formatting (UNT-03 display unit; UNT-04 SI or US default; UNT-10 mixed compatible units convert automatically; MTH-11 number format; ACC-01 display rounding never changes stored values).
 - [ ] M1-T12 Worker host: protocol, revision handling, timeout watchdog, tests proving no Tauri IPC in the worker: no `__TAURI_INTERNALS__`, and a raw `fetch` to the IPC origin is refused (SEC-03 sandboxed worker; SEC-04 time limit; PRF-04 UI never blocked).
 - [ ] M1-T13 Golden test harness and first reference calcs, including 2 m × 3.4 in = 0.17272 m² (MNT-07 golden files; ACC-02 verification suite).
-- [ ] M1-T14 Q8 CortexJS capability spike, before M1-T9: 15–20 representative numeric calcs through the Compute Engine, plus a check under `freezePrototype: true`. Revisit D5 if a needed case fails (ADR 0005).
+- [ ] M1-T14 Q8 CortexJS capability spike, before M1-T9: 15–20 representative numeric calcs through the Compute Engine, plus a check under `freezePrototype: true`, plus LaTeX parsing (ADR 0017): MathLive output including `\htmlData{unit}{…}` slots to `["Quantity", value, unitExpr]`, and hostile LaTeX. Revisit D5 if a needed case fails (ADR 0005).
 - [ ] M1-T15 Coverage gate, before the first core code lands: `@vitest/coverage-v8` (needs approval), ≥ 90% line coverage on `src/core` enforced in CI (MNT-04; CLAUDE.md definition of done item 3).
 
 ## M2 Editor and files
@@ -123,6 +123,8 @@ refer to `architecture.md` Section 11.
 | A6 | PDF engine | M4-T8 |
 
 ## Change log
+
+- 2026-11-09: M1-T1 done. Space after a number opens the unit slot (ADR 0016); MathLive 0.111.4 works under `freezePrototype` with no CSP violations under the dev CSP. The spike found MathLive cannot output MathJSON without CortexJS, so math is now stored as LaTeX and parsed to MathJSON in the worker (ADR 0017, superseding part of 0004 and 0005); M1-T14 now also covers that parse. Slot details for the M2 node view are listed in ADR 0016.
 
 - 2026-11-09: M0 complete. Exit criteria met (`pnpm tauri dev` opens the window; CI passes on the review commits) and the fresh-session review has no open gaps (rule 6). M1 is next; start with M1-T1, and run M1-T14 and M1-T15 before M1-T9 and before the first core code respectively.
 

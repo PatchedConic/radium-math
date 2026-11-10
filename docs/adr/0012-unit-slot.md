@@ -1,6 +1,6 @@
 # 0012. Enter units in an explicit unit slot; units and variables never share names
 
-- **Status:** Accepted (input trigger to be confirmed by a MathLive spike at the start of M1)
+- **Status:** Accepted; input trigger confirmed by [0016](0016-unit-slot-trigger.md)
 - **Date:** 2026-11-09
 - **Source:** A3; UNT-01, UNT-05
 

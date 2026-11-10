@@ -74,7 +74,7 @@ If a feature seems to need a forbidden import, the design is wrong. Move the cod
 Documents are data, never code.
 
 - **No code from strings, anywhere (SEC-01):** no `eval`, `new Function` / `Function()`, dynamic `import()`, string `setTimeout` or `setInterval`, `innerHTML` / `outerHTML` assignment, `insertAdjacentHTML`, `dangerouslySetInnerHTML`, or `document.write`. ESLint and `scripts/check-forbidden.mjs` both enforce this.
-- **Never call CortexJS `compile()`:** it generates JavaScript. Never pass LaTeX strings to CortexJS. Evaluate only validated MathJSON through `ComputeBackend`.
+- **Never call CortexJS `compile()`:** it generates JavaScript. LaTeX reaches CortexJS only in the worker, through the adapter's parse, under length limits and the timeout (ADR 0017). Evaluate only validated MathJSON through `ComputeBackend`.
 - **Math crosses into compute only as `ValidExpr` (SEC-02):** `ValidExpr` is a branded type that only `core/validate` can produce. Never cast to it.
 - **The worker gets no DOM, file, network or Tauri IPC access (SEC-03).** Every evaluation has a timeout, enforced by terminate and restart (SEC-04).
 - **Untrusted bytes enter at three points only:** file open, paste and image import. Each goes through its single validator (Section 8), and nothing downstream trusts raw input.
@@ -92,7 +92,7 @@ Documents are data, never code.
 - **Core purity:** core is pure functions over plain data. The editor owns document state, and React holds only UI state (Section 7). Never store computed results in the document (FIL-03).
 - **Errors:** a failing region reports an `ErrorCode` and a plain-language message. It never throws past the engine, and it never shows stale values (MTH-12, REL-02).
 - **Rust:** keep the shell thin. All logic belongs in TypeScript core.
-- **Formatting:** Prettier owns it. Don't hand-format, and don't reformat `docs/requirements.md` or `docs/architecture.md` (they're maintained elsewhere).
+- **Formatting:** Prettier owns it. Don't hand-format, and don't reformat `docs/requirements.md`, `docs/architecture.md` or `docs/plan.md`: they're maintained here but excluded from Prettier (`.prettierignore`) so their tables and long lines stay as written.
 - **Commits:** use Conventional Commit prefixes (`feat:`, `fix:`, `test:`, `chore:`, `ci:`, `docs:`). Keep one task per commit.
 
 ## Definition of done

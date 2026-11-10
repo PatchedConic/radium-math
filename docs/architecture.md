@@ -113,18 +113,19 @@ These types are the contract between layers; everything else is an implementatio
 
 ```typescript
 type BlockId = string;                       // UUID, stable for the block's life (FIL-04)
-type MathJson = unknown;                     // raw MathLive output, untrusted until validated
+type Latex = string;                         // MathLive LaTeX as stored in the document (ADR 0017), untrusted
+type MathJson = unknown;                     // parsed from Latex in the worker, untrusted until validated
 
 type RegionInput =
-  | { kind: "definition"; id: BlockId; name: string; params?: string[]; expr: MathJson; display?: DisplaySpec }
-  | { kind: "evaluation"; id: BlockId; expr: MathJson; display?: DisplaySpec }
-  | { kind: "symbolic";   id: BlockId; op: SymbolicOp; expr: MathJson; wrt?: string }
-  | { kind: "check";      id: BlockId; expr: MathJson };
+  | { kind: "definition"; id: BlockId; name: string; params?: string[]; expr: Latex; display?: DisplaySpec }
+  | { kind: "evaluation"; id: BlockId; expr: Latex; display?: DisplaySpec }
+  | { kind: "symbolic";   id: BlockId; op: SymbolicOp; expr: Latex; wrt?: string }
+  | { kind: "check";      id: BlockId; expr: Latex };
 
 type SymbolicOp = "simplify" | "expand" | "factor" | "differentiate" | "integrate" | "solve";
 
 interface DisplaySpec {
-  unit?: MathJson;          // UNT-03, e.g. MPa
+  unit?: Latex;             // UNT-03, e.g. MPa
   format?: NumberFormat;    // MTH-11 override
   showWork?: boolean;       // MTH-10
 }
@@ -177,6 +178,7 @@ The engine walks regions once, top to bottom, and recomputes a region only when 
 
 **Per-region pipeline (numeric):**
 
+1. **Parse:** reject LaTeX over the length limit, then the CortexJS adapter parses it into untrusted MathJSON (ADR 0017). This is the only place LaTeX reaches CortexJS.
 1. **Validate:** check the MathJSON tree against the allow-list and size/depth limits, producing a `ValidExpr` or an error.
 2. **Resolve:** look up every free name in the scope built so far. A name defined only below gives `defined-below`; an unknown name gives `undefined-symbol`.
 3. **Dimension check:** the units layer infers the result dimension from the tree and the operand dimensions (Section 6). A mismatch here is an error before any arithmetic runs.
@@ -236,7 +238,7 @@ The ProseMirror document is the single source of truth for content; React draws 
 | `heading` | block | `id`, `level` 1–4 |
 | `paragraph` | block | `id` |
 | `bullet_list`, `ordered_list`, `list_item` | block | `id` |
-| `math_region` | block, atom | `id`, `kind`, `name`, `params`, `expr` (MathJSON), `display`, `op` |
+| `math_region` | block, atom | `id`, `kind`, `name`, `params`, `expr` (LaTeX, ADR 0017), `display`, `op` |
 | `image` | block, atom | `id`, `asset` (file entry), `caption`, `width`, `align` |
 | `page_break` | block, atom | `id` |
 | `inline_math` | inline, atom | `latex` (display only, TXT-03) |
@@ -244,9 +246,9 @@ The ProseMirror document is the single source of truth for content; React draws 
 
 Marks: bold, italic, underline, subscript, superscript, code, link.
 
-**Math regions.** A ProseMirror node view hosts a MathLive `<math-field>` web component directly, not through React, to keep typing fast (PRF-03). On change, the node view writes the field's MathJSON into the node's attributes as one transaction, so undo and redo cover math edits (EDT-03). Results render in a separate decoration under the field.
+**Math regions.** A ProseMirror node view hosts a MathLive `<math-field>` web component directly, not through React, to keep typing fast (PRF-03). On change, the node view writes the field's LaTeX into the node's attributes as one transaction, so undo and redo cover math edits (EDT-03). Results render in a separate decoration under the field.
 
-**Unit entry (A3).** Units never share a namespace with variables. A space typed right after a number or a closing parenthesis opens a unit slot; the slot accepts only unit names and the operators ·, / and ^, with autocomplete from the unit registry, and Enter or Tab closes it. An "Insert unit" toolbar button does the same. Units render upright, variables italic. In MathJSON a quantity is stored as `["Quantity", value, unitExpr]`, a node the validator accepts only with a registry unit expression; an unknown name is flagged with a suggestion. Pasted text such as `3.4 in` becomes a quantity when the unit is recognized. If MathLive cannot support the space trigger cleanly, the fallback is a dedicated key such as `'`.
+**Unit entry (A3).** Units never share a namespace with variables. A space typed right after a number or a closing parenthesis opens a unit slot (confirmed by the M1-T1 spike, ADR 0016); the slot accepts only unit names and the operators ·, / and ^, with autocomplete from the unit registry, and Enter or Tab closes it. An "Insert unit" toolbar button does the same. Units render upright, variables italic. In the stored LaTeX the slot is `\htmlData{unit}{…}`; the worker's parse turns a number and slot into `["Quantity", value, unitExpr]`, a node the validator accepts only with a registry unit expression; an unknown name is flagged with a suggestion. Pasted text such as `3.4 in` becomes a quantity when the unit is recognized.
 
 **Engine link.** A ProseMirror plugin watches transactions. After a short pause in typing it extracts the region list in document order and posts it to the worker with the current revision; returned results are stored in plugin state and drawn as decorations, never written into the document (FIL-03).
 
@@ -260,7 +262,7 @@ Untrusted bytes cross into the app at exactly three points: opening a file, past
 
 | Threat | Control | Req |
 | --- | --- | --- |
-| Math content turned into code | Allow-list validator; the CortexJS adapter never calls `compile()` (which generates JavaScript) and never parses LaTeX strings, only validated MathJSON; Cortex program operators (assignment, loops, declarations) are not on the allow-list; lint rule bans `eval` and `Function` everywhere | SEC-01, SEC-02 |
+| Math content turned into code | Allow-list validator; the CortexJS adapter never calls `compile()` (which generates JavaScript); it parses LaTeX to MathJSON only inside the worker, under length limits and the timeout, and evaluates only validated MathJSON (ADR 0017); Cortex program operators (assignment, loops, declarations) are not on the allow-list; lint rule bans `eval` and `Function` everywhere | SEC-01, SEC-02 |
 | Runaway computation | Worker watchdog with terminate-and-restart (Section 5); size and depth limits in the validator | SEC-04, SEC-05 |
 | Compute escapes to files or network | Worker gets no Tauri IPC handle, and a raw `fetch` to the IPC origin is refused (both checked by tests in M1); CSP restricts the network; Tauri capabilities expose no file or shell API to scripts | SEC-03, SEC-07 |
 | Malicious file | Zip limits (entry count, total and per-entry size, no path traversal); JSON validated with zod before a ProseMirror doc is built | SEC-10, SEC-11 |
@@ -269,7 +271,7 @@ Untrusted bytes cross into the app at exactly three points: opening a file, past
 
 **Content Security Policy.** `default-src 'self'`; `script-src 'self'`; `object-src 'none'`; `base-uri 'none'`; `img-src 'self' blob: data:`; `connect-src` limited to Tauri's IPC origin. MathLive may need `style-src 'unsafe-inline'`; that is checked in M2 and recorded in an ADR if required. A separate `devCsp` applies only under `pnpm tauri dev`: it is the same policy plus `ws://localhost:1420` in `connect-src` for Vite hot reload. Both live in `src-tauri/tauri.conf.json`.
 
-**Frozen prototypes.** `freezePrototype: true` freezes `Object.prototype` in the webview, so script cannot pollute shared prototypes. Some libraries patch prototypes; MathLive (M1-T1) and CortexJS (M1-T14) are checked under it, and turning it off needs an ADR.
+**Frozen prototypes.** `freezePrototype: true` freezes `Object.prototype` in the webview, so script cannot pollute shared prototypes. Some libraries patch prototypes; MathLive passed under it in M1-T1 (ADR 0016), CortexJS is checked in M1-T14, and turning it off needs an ADR.
 
 **Capabilities.** The main window gets an explicit list of Tauri core permission sets, not `core:default`: app, event, window, webview, path, menu and resources ([ADR 0015](adr/0015-tauri-capabilities.md)). `core:image` is excluded because `allow-from-path` reads image files by path, outside the Rust allow-list; `core:tray` is unused. M2 adds only the dialog permissions and the commands below (SEC-09).
 
@@ -312,7 +314,7 @@ All dependencies must be MIT-compatible; a license check in CI rejects GPL, LGPL
 | App chrome | React, react-dom | MIT |
 | UI state | zustand *(planned, M2)* | MIT |
 | Document editor | prosemirror-model, -state, -view, -transform, -commands, -keymap, -history, -inputrules *(planned, M2)* | MIT |
-| Math input | MathLive *(planned, M1-T1)* | MIT |
+| Math input | MathLive | MIT |
 | CAS | CortexJS Compute Engine (`@cortex-js/compute-engine`) *(planned, M1-T9)* | MIT |
 | Tauri JS API | `@tauri-apps/api`, `@tauri-apps/cli` | MIT or Apache-2.0 |
 | File dialogs | tauri-plugin-dialog, `@tauri-apps/plugin-dialog` *(planned, M2-T10)* | MIT or Apache-2.0 |
@@ -374,6 +376,8 @@ The decisions so far become the first decision records in `docs/adr/` at M0; A1 
 | 0013 | Symbolic regions substitute values defined above | A2 |
 | 0014 | Units carried through symbolic math as SI base-unit symbols | A1 |
 | 0015 | Explicit list of Tauri core permissions, not `core:default` (added in the M0 review) | SEC-09 |
+| 0016 | Space after a number opens the unit slot (M1-T1 spike) | A3 |
+| 0017 | Store math as LaTeX; parse it to MathJSON in the worker (supersedes part of 0004 and 0005) | D4, D5 |
 
 **Open architecture questions**
 
@@ -381,7 +385,7 @@ The decisions so far become the first decision records in `docs/adr/` at M0; A1 
 | --- | --- | --- | --- |
 | A1 | Units in symbolic results | (a) Symbolic ops work on unit-free expressions, with dimensions still checked; (b) unit symbols carried through symbolic output | Decided 2026-11-09: (b), defined values enter as SI number × base-unit symbols; CAS behavior tested at the start of symbolic work in M3 |
 | A2 | Do symbolic regions substitute defined values? | (a) Names stay free symbols; (b) defined values substituted, as in MathCAD; (c) per-region toggle | Decided 2026-11-09: (b), values substituted. Reopens A1 |
-| A3 | How a unit is told apart from a variable (is m a meter or a mass?) | (a) Unit names are predefined identifiers that user definitions can shadow, as in MathCAD; (b) units are entered explicitly (shortcut or autocomplete after a number), shown upright, and stored as a distinct node | Decided 2026-11-09: (b), explicit unit slot (Section 7). Trigger confirmed by a MathLive spike at the start of M1 |
+| A3 | How a unit is told apart from a variable (is m a meter or a mass?) | (a) Unit names are predefined identifiers that user definitions can shadow, as in MathCAD; (b) units are entered explicitly (shortcut or autocomplete after a number), shown upright, and stored as a distinct node | Decided 2026-11-09: (b), explicit unit slot (Section 7). Trigger confirmed by the M1-T1 spike (ADR 0016) |
 | A4 | File extension | `.rmath`, or another | Decided 2026-11-09: .rmath |
 | A5 | Code signing | Unsigned for v1, or signed (needs a paid Apple Developer account and a Windows code-signing certificate) | Decided 2026-11-09: unsigned until there are outside users |
 | A6 | PDF engine (Q3) | Typst or webview print | Decided 2026-11-09: choose by prototype in M4 |
