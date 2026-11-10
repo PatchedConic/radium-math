@@ -4,12 +4,14 @@ Desktop app for engineering calculation documents: formatted text, images, and l
 
 - Requirements: [docs/requirements.md](docs/requirements.md). IDs such as `SEC-03` or `D5` refer to it.
 - Architecture: [docs/architecture.md](docs/architecture.md). "Section n" below means a section of that doc.
+- Milestone plan: [docs/plan.md](docs/plan.md). Its milestones, task IDs (e.g. `M1-T4`) and "Rules for every session" govern what to work on. Read it after this file.
 - Decisions: [docs/adr/](docs/adr/). A baseline decision (requirements Section 2) changes only through a new ADR (MNT-06).
 
 Goal G4 governs everything: one hobbyist developer must be able to understand, test and change any part. Prefer the plain, explicit solution.
 
 ## Working agreement
 
+- Work only on tasks in the current milestone of [docs/plan.md](docs/plan.md). Propose how you will do a task and wait for approval before starting it. Ideas outside the milestone go in its Backlog.
 - Work one task at a time. Show what changed, then **wait for an explicit OK before each commit**.
 - **Ask before adding any dependency** not listed in architecture Section 10, npm or Rust. Every dependency must be MIT-compatible (no GPL, LGPL or AGPL).
 - Choose package versions that are past pnpm's minimum release age. Never add `minimumReleaseAge` exemptions or edit `pnpm-workspace.yaml` to get around the policy.
@@ -95,4 +97,5 @@ A change is done when all of these hold:
 3. New behaviour has tests, tagged with requirement IDs. Core changes keep core line coverage at ≥ 90% once the coverage gate exists (MNT-04, from M1).
 4. No new dependency, Tauri permission, CSP change or layer-rule change went in without the user's approval. Any baseline change has an ADR.
 5. Docs match the code: architecture, the ADRs, and this file's commands and rules.
-6. The user has reviewed the diff and said OK to commit.
+6. The task's box in [docs/plan.md](docs/plan.md) is ticked in the same commit.
+7. The user has reviewed the diff and said OK to commit.

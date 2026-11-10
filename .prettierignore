@@ -5,6 +5,8 @@ pnpm-lock.yaml
 src-tauri/target/
 src-tauri/gen/
 
-# The baseline design docs are maintained outside the repo; keep their formatting as-is.
+# The baseline design docs and the milestone plan are maintained outside the repo;
+# keep their formatting as-is.
 docs/requirements.md
 docs/architecture.md
+docs/plan.md
