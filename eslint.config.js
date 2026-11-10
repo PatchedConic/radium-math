@@ -110,6 +110,10 @@ export default tseslint.config(
     files: ["*.config.{js,ts}", "scripts/**/*.{js,mjs}"],
     languageOptions: { globals: globals.node },
   },
+  {
+    files: ["**/*.cjs"],
+    languageOptions: { sourceType: "commonjs", globals: globals.node },
+  },
 
   // Plain JS files are not in a tsconfig, so skip type-aware rules for them.
   {
