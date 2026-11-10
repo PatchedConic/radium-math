@@ -36,7 +36,7 @@ refer to `architecture.md` Section 11.
 
 - [x] M0-T1 Check prerequisites: Node 22 LTS, pnpm, Rust via rustup, Tauri 2 system packages. List sudo commands for the user; do not run them.
 - [x] M0-T2 Scaffold Tauri 2 + React + strict TypeScript + Vite with the folder layout in architecture Section 3.
-- [x] M0-T3 Tooling: ESLint + typescript-eslint, Prettier, Vitest, fast-check, dependency-cruiser layer rules (architecture Section 2), license check (MIT-compatible only).
+- [x] M0-T3 Tooling: ESLint + typescript-eslint, Prettier, Vitest, fast-check, dependency-cruiser layer rules (architecture Section 2), license check (MIT-compatible only) (MNT-01 strict, no `any`; MNT-02 layer rules; PLT-02 core has no DOM or Node types).
 - [x] M0-T4 GitHub Actions CI: typecheck, lint, layer rules, license check, tests, `pnpm audit`, `cargo audit` (MNT-05 lint enforced in CI; SEC-15 audits in CI).
 - [x] M0-T5 Write `CLAUDE.md`: conventions, layer rules, security rules (no `eval`, `Function`, or CortexJS `compile()`), commands, definition of done, pointer to this file.
 - [x] M0-T6 Write `docs/adr/0001` to `0014` from architecture Section 11 (MNT-06 decision records in repo).
@@ -45,7 +45,7 @@ refer to `architecture.md` Section 11.
 
 ## M1 Math engine (no UI)
 
-- [ ] M1-T1 MathLive spike: confirm the space-after-number unit slot (A3), or fall back to a dedicated key. Record the result as ADR 0015.
+- [ ] M1-T1 MathLive spike: confirm the space-after-number unit slot (A3), or fall back to a dedicated key; also check MathLive under `freezePrototype: true`. Record the result as ADR 0016 (UNT-01 inline unit entry).
 - [ ] M1-T2 Core types: `RegionInput`, `RegionResult`, `Quantity`, `Dimension`, `Rational`, `ValidExpr` (architecture Section 4).
 - [ ] M1-T3 Rational and dimension arithmetic, with property-based tests (MNT-04 property tests for units).
 - [ ] M1-T4 Unit registry, core set: SI base and derived units with prefixes, main US customary units, exact factors (UNT-05 unit library; UNT-08 exact rational factors).
@@ -54,10 +54,12 @@ refer to `architecture.md` Section 11.
 - [ ] M1-T7 Validator: operator allow-list, `Quantity` node, size and depth limits (SEC-02 only validated math reaches the engine; SEC-05 parse limits).
 - [ ] M1-T8 Scope resolver (MTH-02 definitions bind below; MTH-04 strictly top to bottom; MTH-05 redefinition shadows).
 - [ ] M1-T9 CortexJS adapter behind `ComputeBackend`; never calls `compile()` (MNT-03 CAS only via the interface; SEC-01 nothing executed).
-- [ ] M1-T10 Engine: pipeline, change detection, blocked results (MTH-06 automatic recompute; MTH-07 incremental; MTH-12 errors shown, never stale values).
-- [ ] M1-T11 Display conversion, default unit system, number formatting (UNT-03 display unit; UNT-04 SI or US default; UNT-10 mixed compatible units convert automatically; MTH-11 number format).
-- [ ] M1-T12 Worker host: protocol, revision handling, timeout watchdog, test proving no Tauri IPC in the worker (SEC-03 sandboxed worker; SEC-04 time limit; PRF-04 UI never blocked).
+- [ ] M1-T10 Engine: pipeline, change detection, blocked results (MTH-06 automatic recompute; MTH-07 incremental; MTH-12 errors shown, never stale values; REL-02 one failing region never crashes the engine).
+- [ ] M1-T11 Display conversion, default unit system, number formatting (UNT-03 display unit; UNT-04 SI or US default; UNT-10 mixed compatible units convert automatically; MTH-11 number format; ACC-01 display rounding never changes stored values).
+- [ ] M1-T12 Worker host: protocol, revision handling, timeout watchdog, tests proving no Tauri IPC in the worker: no `__TAURI_INTERNALS__`, and a raw `fetch` to the IPC origin is refused (SEC-03 sandboxed worker; SEC-04 time limit; PRF-04 UI never blocked).
 - [ ] M1-T13 Golden test harness and first reference calcs, including 2 m × 3.4 in = 0.17272 m² (MNT-07 golden files; ACC-02 verification suite).
+- [ ] M1-T14 Q8 CortexJS capability spike, before M1-T9: 15–20 representative numeric calcs through the Compute Engine, plus a check under `freezePrototype: true`. Revisit D5 if a needed case fails (ADR 0005).
+- [ ] M1-T15 Coverage gate, before the first core code lands: `@vitest/coverage-v8` (needs approval), ≥ 90% line coverage on `src/core` enforced in CI (MNT-04; CLAUDE.md definition of done item 3).
 
 ## M2 Editor and files
 
@@ -72,6 +74,7 @@ refer to `architecture.md` Section 11.
 - [ ] M2-T9 File format: zip container, manifest, zod-validated `document.json`, deterministic writes, unzip limits, migration scaffold (FIL-01 to FIL-05 file format; SEC-10 validate before use; SEC-11 zip-bomb and path-traversal limits).
 - [ ] M2-T10 Rust commands: open/save dialogs, path allow-list, read, atomic write (EDT-01 open/save; REL-01 atomic saves; SEC-09 minimal capabilities).
 - [ ] M2-T11 Autosave and crash recovery (EDT-05). Needs Q9 autosave interval; proposed 30 s.
+- [ ] M2-T12 Editor and UI test layers, before M2-T1: jsdom for the editor Vitest project, Playwright for `tests/e2e` (both need approval; architecture Section 10 test layers 2 and 3). Include a test that opening and rendering a document makes no network request (SEC-07).
 
 ## M3 Engineering completeness
 
@@ -120,6 +123,8 @@ refer to `architecture.md` Section 11.
 | A6 | PDF engine | M4-T8 |
 
 ## Change log
+
+- 2026-11-09: M0 fresh-session review. Fixes: CI builds the frontend bundle; Rust advisory exceptions recorded in `src-tauri/.cargo/audit.toml`; ADR 0015 accepted and capabilities narrowed from `core:default` to seven explicit core sets (no image or tray); setup packages in CLAUDE.md and README. Plan: added M1-T14 (Q8 spike), M1-T15 (coverage gate), M2-T12 (jsdom, Playwright, SEC-07 test); cited ACC-01, REL-02, SEC-07, UNT-01, MNT-01, MNT-02 and PLT-02; the M1-T1 spike ADR is now 0016. Open before M0 closes: bundle identifier, release-age policy location, which copy of the plan is authoritative.
 
 - 2026-11-09: M0 tasks done and exit criteria met: `pnpm tauri dev` opens the placeholder window and the first CI run passed. Fresh-session review pending (rule 6).
 - 2026-11-09: Plan created. File save, open and autosave moved from M5 to M2 so the app is usable from M2 on.
