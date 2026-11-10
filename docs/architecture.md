@@ -40,10 +40,10 @@ flowchart LR
   PL -- "Tauri IPC" --> CMD
 
   WK -.->|imports| EN
-  ED -.->|"imports types, numfmt, format"| core
+  ED -.->|"imports core except engine, compute"| core
 ```
 
-Solid arrows are runtime calls and messages; dotted arrows are imports. Core runs wherever it is imported: the engine pipeline runs inside the worker, while the editor uses core's types, number formatting and file format on the main thread.
+Solid arrows are runtime calls and messages; dotted arrows are imports. Core runs wherever it is imported: the engine pipeline runs inside the worker, while the editor uses core's types, unit registry (for unit autocomplete, A3), number formatting and file format on the main thread. The editor never imports `core/engine` or `core/compute`, so no evaluation can run on the main thread.
 
 The editor sends region inputs to the worker and draws the results it gets back; only the Platform layer talks to Rust, and only Rust touches files.
 
@@ -55,7 +55,7 @@ Six layers, with dependencies pointing only toward `core`; `core` is pure TypeSc
 | --- | --- | --- | --- |
 | Core | `src/core` | Region input types, validator, scope resolver, units, number formatting, `ComputeBackend` interface, engine orchestration, file schema and migrations | Nothing outside `core` (plus CortexJS in `core/compute/cortex` only) |
 | Worker | `src/worker` | Web Worker entry: hosts the engine, speaks the worker protocol | `core` |
-| Editor | `src/editor` | ProseMirror schema, plugins, node views, Markdown input rules, extraction of region inputs from the doc | `core` (types and format only) |
+| Editor | `src/editor` | ProseMirror schema, plugins, node views, Markdown input rules, extraction of region inputs from the doc | `core`, except `core/engine` and `core/compute` (evaluation runs in the worker) |
 | UI | `src/ui` | React app chrome: menus, toolbar, side panels (checks summary, symbol inspector), dialogs | `editor`, `platform`, `core` types |
 | Platform | `src/platform` | `Platform` interface (open, save, autosave, export paths) and its Tauri implementation | `@tauri-apps/api` only |
 | Shell | `src-tauri` | Rust: window, CSP, capabilities, file dialogs, atomic file write | Tauri crates |
@@ -70,10 +70,14 @@ One package (no monorepo tooling); folders mirror the layers.
 radium-math/
   CLAUDE.md                 conventions and rules for every session
   LICENSE                   MIT
+  pnpm-workspace.yaml       pnpm settings: minimumReleaseAge (supply-chain policy)
+  .dependency-cruiser.cjs   layer rules (Section 2)
   docs/
     requirements.md
     architecture.md
+    plan.md                 milestones and tasks
     adr/                    0001-tauri-shell.md, 0002-cortexjs.md, ...
+  scripts/                  check-licenses.mjs, check-forbidden.mjs (SEC-01 code search)
   src/
     core/
       model/                RegionInput, ids, schema version
@@ -92,6 +96,9 @@ radium-math/
     platform/               Platform interface + Tauri implementation
     main.tsx
   src-tauri/                Rust shell
+    capabilities/           Tauri permissions (SEC-09, ADR 0015)
+    deny.toml               crate license and source allow-list (cargo-deny)
+    .cargo/audit.toml       reviewed cargo-audit advisory exceptions
   tests/
     golden/                 reference documents + expected results (MNT-07, ACC-02)
     malicious/              hostile files for SEC tests
@@ -255,12 +262,16 @@ Untrusted bytes cross into the app at exactly three points: opening a file, past
 | --- | --- | --- |
 | Math content turned into code | Allow-list validator; the CortexJS adapter never calls `compile()` (which generates JavaScript) and never parses LaTeX strings, only validated MathJSON; Cortex program operators (assignment, loops, declarations) are not on the allow-list; lint rule bans `eval` and `Function` everywhere | SEC-01, SEC-02 |
 | Runaway computation | Worker watchdog with terminate-and-restart (Section 5); size and depth limits in the validator | SEC-04, SEC-05 |
-| Compute escapes to files or network | Worker gets no Tauri IPC handle (checked by a test in M1); CSP restricts the network; Tauri capabilities expose no file or shell API to scripts | SEC-03, SEC-07 |
+| Compute escapes to files or network | Worker gets no Tauri IPC handle, and a raw `fetch` to the IPC origin is refused (both checked by tests in M1); CSP restricts the network; Tauri capabilities expose no file or shell API to scripts | SEC-03, SEC-07 |
 | Malicious file | Zip limits (entry count, total and per-entry size, no path traversal); JSON validated with zod before a ProseMirror doc is built | SEC-10, SEC-11 |
 | Malicious SVG | Shown only through `<img>` from a blob URL, where scripts and external loads do not run; sanitized with DOMPurify before export | SEC-06, SEC-13 |
 | Hostile paste | Paste parsed into the schema; unknown nodes and attributes dropped | SEC-12 |
 
-**Content Security Policy.** `default-src 'self'`; `script-src 'self'`; `object-src 'none'`; `base-uri 'none'`; `img-src 'self' blob: data:`; `connect-src` limited to Tauri's IPC origin. MathLive may need `style-src 'unsafe-inline'`; that is checked in M2 and recorded in an ADR if required.
+**Content Security Policy.** `default-src 'self'`; `script-src 'self'`; `object-src 'none'`; `base-uri 'none'`; `img-src 'self' blob: data:`; `connect-src` limited to Tauri's IPC origin. MathLive may need `style-src 'unsafe-inline'`; that is checked in M2 and recorded in an ADR if required. A separate `devCsp` applies only under `pnpm tauri dev`: it is the same policy plus `ws://localhost:1420` in `connect-src` for Vite hot reload. Both live in `src-tauri/tauri.conf.json`.
+
+**Frozen prototypes.** `freezePrototype: true` freezes `Object.prototype` in the webview, so script cannot pollute shared prototypes. Some libraries patch prototypes; MathLive (M1-T1) and CortexJS (M1-T14) are checked under it, and turning it off needs an ADR.
+
+**Capabilities.** The main window gets an explicit list of Tauri core permission sets, not `core:default`: app, event, window, webview, path, menu and resources ([ADR 0015](adr/0015-tauri-capabilities.md)). `core:image` is excluded because `allow-from-path` reads image files by path, outside the Rust allow-list; `core:tray` is unused. M2 adds only the dialog permissions and the commands below (SEC-09).
 
 **Rust shell.** Kept to five commands, and no shell, http or updater plugins (SEC-09):
 
@@ -294,22 +305,31 @@ The extension is `.rmath` (A4).
 
 ## 10. Toolchain, testing and packaging
 
-All dependencies must be MIT-compatible; a license check in CI rejects GPL, LGPL and AGPL packages.
+All dependencies must be MIT-compatible; a license check in CI rejects GPL, LGPL and AGPL packages. This table is the approved dependency list: adding anything not on it needs the user's approval (CLAUDE.md). Rows marked *(planned)* are approved but not yet installed; each is added by the task that first needs it.
 
 | Purpose | Tool | License |
 | --- | --- | --- |
+| App chrome | React, react-dom | MIT |
+| UI state | zustand *(planned, M2)* | MIT |
+| Document editor | prosemirror-model, -state, -view, -transform, -commands, -keymap, -history, -inputrules *(planned, M2)* | MIT |
+| Math input | MathLive *(planned, M1-T1)* | MIT |
+| CAS | CortexJS Compute Engine (`@cortex-js/compute-engine`) *(planned, M1-T9)* | MIT |
+| Tauri JS API | `@tauri-apps/api`, `@tauri-apps/cli` | MIT or Apache-2.0 |
+| File dialogs | tauri-plugin-dialog, `@tauri-apps/plugin-dialog` *(planned, M2-T10)* | MIT or Apache-2.0 |
 | Package manager | pnpm | MIT |
 | Build and dev server | Vite | MIT |
 | Unit and integration tests | Vitest | MIT |
 | Property-based tests | fast-check | MIT |
-| UI tests | Playwright | Apache-2.0 |
+| Coverage | `@vitest/coverage-v8` *(planned, M1-T15)* | MIT |
+| Editor test DOM | jsdom *(planned, M2-T12)* | MIT |
+| UI tests | Playwright *(planned, M2-T12)* | Apache-2.0 |
 | Lint and format | ESLint with typescript-eslint, Prettier | MIT |
 | Layer rules | dependency-cruiser | MIT |
 | Schema validation | zod | MIT |
 | Zip | fflate | MIT |
 | SVG sanitizing | DOMPurify | Apache-2.0 or MPL-2.0 |
 | Markdown paste | prosemirror-markdown | MIT |
-| Rust checks | clippy, cargo-audit | MIT or Apache-2.0 |
+| Rust checks | clippy, cargo-audit, cargo-deny (crate licenses and sources) | MIT or Apache-2.0 |
 
 **Test layers.**
 
@@ -318,7 +338,7 @@ All dependencies must be MIT-compatible; a license check in CI rejects GPL, LGPL
 3. **UI** (Playwright against the Vite dev server): typing, recalculation, error display.
 4. **Release checklist** (manual): PLT and EXP demonstrations on each OS.
 
-**CI** (GitHub Actions): typecheck, lint, layer rules, license check, tests, `pnpm audit`, `cargo audit` on every push. Release builds run on Windows, macOS and Ubuntu 22.04 runners; the AppImage is built on the oldest supported base so it runs on newer distributions.
+**CI** (GitHub Actions): typecheck, frontend build (`vite build`), lint, format, layer rules, npm and crate license checks, SEC-01 code search, tests, `pnpm audit`, `cargo fmt`, clippy, `cargo audit` on every push. Installs honor `minimumReleaseAge: 1440` in `pnpm-workspace.yaml`; reviewed advisory exceptions live in `src-tauri/.cargo/audit.toml`. Release builds run on Windows, macOS and Ubuntu 22.04 runners; the AppImage is built on the oldest supported base so it runs on newer distributions.
 
 **Release artifacts (PLT-03).**
 
@@ -353,6 +373,7 @@ The decisions so far become the first decision records in `docs/adr/` at M0; A1 
 | 0012 | Explicit unit slot; units and variables never share names | A3 |
 | 0013 | Symbolic regions substitute values defined above | A2 |
 | 0014 | Units carried through symbolic math as SI base-unit symbols | A1 |
+| 0015 | Explicit list of Tauri core permissions, not `core:default` (added in the M0 review) | SEC-09 |
 
 **Open architecture questions**
 

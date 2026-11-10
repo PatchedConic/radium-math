@@ -177,7 +177,7 @@ Documents are data, never code: no path may exist from document content to code 
 | SEC-12 | Pasted text and HTML are reduced to the editor's allowed node types; everything else is dropped. | Must |
 | SEC-13 | Exported HTML contains no scripts. | Must |
 | SEC-14 | Fuzz tests cover the file parser, math validator and SVG sanitizer. | Should |
-| SEC-15 | Lockfiles are committed; `npm audit` and `cargo audit` run in CI. | Should |
+| SEC-15 | Lockfiles are committed; `pnpm audit` and `cargo audit` run in CI. | Should |
 
 ## 6. Non-functional requirements
 
