@@ -1,6 +1,6 @@
 # Radium Math — Milestone Plan
 
-Status: M0 tasks done; awaiting fresh-session review · Last updated 2026-11-09
+Status: M0 complete; M1 is the current milestone · Last updated 2026-11-09
 
 This file defines the milestones and tasks for Radium Math v1. It sits alongside
 `docs/requirements.md` (what to build) and `docs/architecture.md` (how it is built).
@@ -32,7 +32,7 @@ refer to `architecture.md` Section 11.
 | M4 Report quality | Images, layout, styling, PDF export | That analysis exports to a PDF fit to hand to a checker |
 | M5 Release | Hardening, performance, portable builds | Release checklist passes on Windows, macOS, Fedora (Wayland) and Ubuntu (X11) |
 
-## M0 Foundation
+## M0 Foundation (complete)
 
 - [x] M0-T1 Check prerequisites: Node 22 LTS, pnpm, Rust via rustup, Tauri 2 system packages. List sudo commands for the user; do not run them.
 - [x] M0-T2 Scaffold Tauri 2 + React + strict TypeScript + Vite with the folder layout in architecture Section 3.
@@ -124,7 +124,9 @@ refer to `architecture.md` Section 11.
 
 ## Change log
 
-- 2026-11-09: M0 fresh-session review. Fixes: CI builds the frontend bundle; Rust advisory exceptions recorded in `src-tauri/.cargo/audit.toml`; ADR 0015 accepted and capabilities narrowed from `core:default` to seven explicit core sets (no image or tray); setup packages in CLAUDE.md and README. Plan: added M1-T14 (Q8 spike), M1-T15 (coverage gate), M2-T12 (jsdom, Playwright, SEC-07 test); cited ACC-01, REL-02, SEC-07, UNT-01, MNT-01, MNT-02 and PLT-02; the M1-T1 spike ADR is now 0016. Bundle identifier changed from `com.radiummath.app` to `io.github.patchedconic.radiummath` before any user data depends on it. This file is the only copy of the plan; the `.prettierignore` comment saying otherwise was corrected. The release-age policy is now in the repo (`pnpm-workspace.yaml`, `minimumReleaseAge: 1440`), so CI and fresh clones enforce it. Architecture (Sections 1, 2, 3, 8, 10, 11) and requirements (SEC-15) brought in line with the code. Open before M0 closes: a green CI run on the pushed review commits.
+- 2026-11-09: M0 complete. Exit criteria met (`pnpm tauri dev` opens the window; CI passes on the review commits) and the fresh-session review has no open gaps (rule 6). M1 is next; start with M1-T1, and run M1-T14 and M1-T15 before M1-T9 and before the first core code respectively.
+
+- 2026-11-09: M0 fresh-session review. Fixes: CI builds the frontend bundle; Rust advisory exceptions recorded in `src-tauri/.cargo/audit.toml`; ADR 0015 accepted and capabilities narrowed from `core:default` to seven explicit core sets (no image or tray); setup packages in CLAUDE.md and README. Plan: added M1-T14 (Q8 spike), M1-T15 (coverage gate), M2-T12 (jsdom, Playwright, SEC-07 test); cited ACC-01, REL-02, SEC-07, UNT-01, MNT-01, MNT-02 and PLT-02; the M1-T1 spike ADR is now 0016. Bundle identifier changed from `com.radiummath.app` to `io.github.patchedconic.radiummath` before any user data depends on it. This file is the only copy of the plan; the `.prettierignore` comment saying otherwise was corrected. The release-age policy is now in the repo (`pnpm-workspace.yaml`, `minimumReleaseAge: 1440`), so CI and fresh clones enforce it. Architecture (Sections 1, 2, 3, 8, 10, 11) and requirements (SEC-15) brought in line with the code. CI passed on the pushed review commits.
 
 - 2026-11-09: M0 tasks done and exit criteria met: `pnpm tauri dev` opens the placeholder window and the first CI run passed. Fresh-session review pending (rule 6).
 - 2026-11-09: Plan created. File save, open and autosave moved from M5 to M2 so the app is usable from M2 on.
