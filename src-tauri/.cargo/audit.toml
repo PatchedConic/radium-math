@@ -1,0 +1,21 @@
+# cargo-audit configuration (SEC-15). CI runs `cargo audit` from src-tauri/.
+# Docs: https://docs.rs/cargo-audit/latest/cargo_audit/config/
+#
+# Reviewed advisory exceptions: one entry per advisory, with the reason.
+# Remove an entry once the dependency that pulls it in is upgraded.
+
+[advisories]
+ignore = [
+  # proc-macro-error is unmaintained. Build-time proc macro used by the GTK
+  # bindings behind Tauri's Linux backend; no code of it ships in the app.
+  "RUSTSEC-2024-0370",
+  # glib::VariantStrIter is unsound. Comes with gtk-rs 0.18 (Tauri's Linux
+  # backend). Neither the app nor Tauri's API calls VariantStrIter.
+  "RUSTSEC-2024-0429",
+]
+
+[output]
+# Any new unsound advisory fails CI until it is reviewed here.
+# Unmaintained advisories still print as warnings.
+deny = ["unsound"]
+quiet = false

@@ -44,7 +44,7 @@ Rust commands run from `src-tauri/`:
 
 CI (`.github/workflows/ci.yml`) runs all of the above on every push.
 
-CI also runs `vite build` (the bundle Tauri ships).
+CI also runs `vite build` (the bundle Tauri ships). `pnpm audit` fails only on high or critical advisories. Moderate dev-only advisories (e.g. minimatch via ESLint) are tolerated until upstream fixes them. Reviewed Rust advisory exceptions live in `src-tauri/.cargo/audit.toml`, one per advisory with its reason, and any new unsound advisory fails CI.
 
 Local setup: Node 22 (`.nvmrc`), pnpm pinned by `packageManager` in `package.json`, and Rust stable via rustup. `~/.cargo/env` must be sourced for `cargo` to be on PATH.
 
