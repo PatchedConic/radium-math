@@ -1,6 +1,6 @@
 # Radium Math — Milestone Plan
 
-Status: M1 in progress (M1-T1 to M1-T3 and M1-T15 done; next M1-T4) · Last updated 2026-11-10
+Status: M1 in progress (M1-T1 to M1-T3 and M1-T15 done; next M1-T4) · Last updated 2026-11-16
 
 This file defines the milestones and tasks for Radium Math v1. It sits alongside
 `docs/requirements.md` (what to build) and `docs/architecture.md` (how it is built).
@@ -124,7 +124,7 @@ refer to `architecture.md` Section 11.
 
 ## Change log
 
-- 2026-11-10: M1-T3 done. `core/units/rational.ts` holds exact bigint fractions (`rat` always reduces, so `equals` compares parts; a zero denominator throws `RangeError`, reported as `internal`); `toNumber` is the one conversion to a double and stays accurate past 2^1024. `core/units/dimension.ts` holds the 7-exponent `Dimension` with `dim`, `dimMul`, `dimDiv`, `dimPow`, `dimEquals` and `isDimensionless`. fast-check properties cover reduction, field laws, power laws, root-undoes-power and exact equality (MNT-04); examples cover the inch and psi factors and √(m²) = m. `Rational` and `Dimension` moved next to their functions and are re-exported from `core/units`. Next: M1-T4 (unit registry).
+- 2026-11-10: M1-T3 done. `core/units/rational.ts` holds exact bigint fractions (`rat` always reduces, so `equals` compares parts; a zero denominator throws `RangeError`, reported as `internal`); `toNumber` is the one conversion to a double and stays accurate past 2^1024. `core/units/dimension.ts` holds the 7-exponent `Dimension` with `dim`, `dimMul`, `dimDiv`, `dimPow`, `dimEquals` and `isDimensionless`. fast-check properties cover reduction, field laws, power laws, root-undoes-power and exact equality (MNT-04); examples cover the inch and psi factors and √(m²) = m. `Rational` and `Dimension` moved next to their functions and are re-exported from `core/units`. Next: M1-T4 (unit registry). Handoff for the next session: the registry builds each factor with `rat`/`mul`/`div`/`pow` and each dimension with `dim`/`dimMul`/`dimDiv`/`dimPow` (architecture Section 6, "Unit registry" and "Exact arithmetic"); the unit list is UNT-05; offsets for °C/°F wait for M1-T6. Every proposal should first show where the task sits in the pipeline, then explain the TypeScript involved with short code sketches.
 
 - 2026-11-09: M1-T2 done. Section 4 types are in `core/model` (regions, results, `DocSettings`), `core/units` (`Rational`, `Dimension`, `Quantity`) and `core/validate` (`ValidExpr`, unchanged), all `readonly`. `RegionInput` carries `Latex` (ADR 0017). Drafts added for types Section 4 named but did not define: `NumberFormat` (notation, significant or decimals, digits; MTH-11), `DocSettings`, `FormattedValue` and `WorkStep`, the last two to be refined in M1-T11 and M3-T3. Worker protocol types wait for M1-T12, and `ComputeBackend.parse` for M1-T9. Type-level tests replace the placeholders in model and units. Next: M1-T3 (rational and dimension arithmetic).
 

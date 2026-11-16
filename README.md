@@ -2,7 +2,7 @@
 
 A desktop app for writing engineering calculation documents: formatted text, captioned images, and live natural-notation math with units, evaluated top to bottom and exported to PDF.
 
-Status: early development (milestone M0, foundation). Nothing is usable yet.
+Status: early development (milestone M1, math engine; see [docs/plan.md](docs/plan.md)). Nothing is usable yet.
 
 ## Build from source
 

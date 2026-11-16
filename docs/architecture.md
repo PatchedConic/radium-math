@@ -80,10 +80,10 @@ radium-math/
   scripts/                  check-licenses.mjs, check-forbidden.mjs (SEC-01 code search)
   src/
     core/
-      model/                RegionInput, ids, schema version
+      model/                RegionInput, RegionResult, settings, ids
       validate/             MathJSON allow-list (SEC-02, SEC-05)
       scope/                top-to-bottom symbol table
-      units/                dimensions, unit registry, conversion
+      units/                rational.ts (exact fractions), dimension.ts, unit registry, conversion
       numfmt/               number formatting
       compute/
         backend.ts          ComputeBackend interface
@@ -212,6 +212,8 @@ The engine walks regions once, top to bottom, and recomputes a region only when 
 Every quantity is held as an SI magnitude plus a dimension vector, so mixed compatible units combine with no special handling: 2 m × 3.4 in becomes 2 × 0.08636 = 0.17272 with dimension L², displayed as 0.17272 m² (UNT-10).
 
 **Unit registry.** Each unit is a record: name, symbols, dimension, SI factor as an exact `Rational` where the definition is exact (1 in = 127/5000 m; 1 lbm = 0.45359237 kg; UNT-08), an optional offset, and whether SI prefixes apply. Derived units are defined from others (psi = lbf/in²), so exactness carries through. Factors are reduced to a double only at the last step.
+
+**Exact arithmetic (M1-T3).** `core/units/rational.ts` holds bigint fractions: `rat` always reduces and keeps the sign on the numerator, so `equals` compares parts directly, and `toNumber` is the single conversion to a double. `core/units/dimension.ts` builds dimensions with `dim({ M: 1, L: -1, T: -2 })` and combines them with `dimMul`, `dimDiv`, `dimPow` and `dimEquals`. The registry and inference rules use only these functions.
 
 **Dimension rules.**
 
